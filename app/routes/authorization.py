@@ -6,7 +6,7 @@ import uvicorn
 import app.models.models as md
 import random
 import jwt
-from app.db.core import insert_user
+from app.db.core import insert_user, pass_for_login
 
 router = APIRouter()
 
@@ -19,12 +19,13 @@ def gen_token(payload):
     return jwt.encode({"sub": payload}, SECRET_KEY, algorithm=ALGORITHM)
 
 
+# Проверка корректности логина и пароля
 def check_user_correct(login, password):
-    print('Zaglushka')
-    return True
-
-def new_user_invalid(log, pas, name, role):
-    print('Zaglushka')
+    current_pass = pass_for_login(login)
+    print(current_pass)
+    if current_pass:
+        if password == current_pass[0]:
+            return True
     return False
 
 
@@ -38,10 +39,8 @@ async def authenticate_user(input_data: md.LogPass):
 
 @router.post("/create_user")
 async def create_user(input_data: md.User):
-    if not new_user_invalid(input_data.login, input_data.password, input_data.name, input_data.role):
+    if not input_data.new_user_invalid():
         insert_user(input_data.login, input_data.password, input_data.name, input_data.role)
         return {"status": "success"}
     else:
         return HTTPException(status_code=401, detail="Invalid credentials")
-
-

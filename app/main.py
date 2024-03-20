@@ -1,18 +1,15 @@
-import os
-import sys
-
 import uvicorn
 from fastapi import FastAPI
 
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
-
-from routes.authorization import router
-from db.core import create_tables
+from app.routes.authorization import router as auth_router
+from app.routes.administration import router as admin_router
+from app.db.core import create_tables
 
 
 app = FastAPI()
 
-app.include_router(router)
+app.include_router(auth_router)
+app.include_router(admin_router)
 
 if __name__ == '__main__':
     create_tables()
