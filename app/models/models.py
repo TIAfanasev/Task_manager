@@ -1,3 +1,5 @@
+import datetime
+
 from pydantic import BaseModel, field_validator
 from typing import Union
 import re
@@ -27,4 +29,18 @@ class Desk(BaseModel):
 
     def new_desk_invalid(self):
         print(self.desk_name)
+        return False
+
+
+class Task(BaseModel):
+    desk_id: int
+    task_name: str
+    description: str
+    creator_id: int
+    status_id: int
+    creation_date: datetime.date
+    deadline: datetime.date
+
+    def new_task_invalid(self):
+        print(self.task_name)
         return False

@@ -2,7 +2,7 @@ from sqlalchemy import Integer, and_, func, insert, select, text, update
 from sqlalchemy.orm import aliased
 
 from app.db.database import sync_engine
-from app.db.models import metadata, users_table, desks_table
+from app.db.models import metadata, users_table, desks_table, tasks_table
 
 
 def create_tables():
@@ -42,6 +42,23 @@ def create_new_desk(desk_name, invite_code, admin_id, description):
         stmt = insert(desks_table).values(
             [
                 {"desk_name": desk_name, "invite_code": invite_code, "admin_id": admin_id, "description": description}
+            ]
+        )
+        conn.execute(stmt)
+        conn.commit()
+
+
+def create_new_task(desk_id, task_name, description, creator_id, status_id, creation_date, deadline):
+    with sync_engine.connect() as conn:
+        stmt = insert(tasks_table).values(
+            [
+                {"desk_id": desk_id,
+                 "task_name": task_name,
+                 "description": description,
+                 "creator_id": creator_id,
+                 "status_id": status_id,
+                 "creation_date": creation_date,
+                 "deadline": deadline}
             ]
         )
         conn.execute(stmt)
