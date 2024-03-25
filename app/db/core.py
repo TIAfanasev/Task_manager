@@ -2,13 +2,28 @@ from sqlalchemy import Integer, and_, func, insert, select, text, update
 from sqlalchemy.orm import aliased
 
 from app.db.database import sync_engine
-from app.db.models import metadata, users_table, desks_table, tasks_table
+from app.db.models import metadata, users_table, desks_table, tasks_table, status_table
+
+
+def add_roles():
+    with sync_engine.connect() as conn:
+        stmt = insert(status_table).values(
+            [
+                {"status_name": "user"},
+                {"status_name": "manager"},
+                {"status_name": "admin"}
+            ]
+        )
+        conn.execute(stmt)
+        conn.commit()
 
 
 def create_tables():
     metadata.drop_all(sync_engine)
 
     metadata.create_all(sync_engine)
+
+    add_roles()
 
 
 def insert_user(login, password, name, role):

@@ -28,7 +28,7 @@ users_table = Table(
     Column("login", String, unique=True),
     Column("hash_pass", String),
     Column("name", String),
-    Column("role", String)
+    Column("role", Integer)
 )
 
 desks_table = Table(
