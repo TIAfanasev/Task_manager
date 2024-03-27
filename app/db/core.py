@@ -1,80 +1,98 @@
 from sqlalchemy import Integer, and_, func, insert, select, text, update
 from sqlalchemy.orm import aliased
 
-from app.db.database import sync_engine
-from app.db.models import metadata, users_table, desks_table, tasks_table, status_table
+from app.db.database import sync_engine, session_factory, Base
+from app.db.models import (
+    desks_table,
+    tasks_table,
+    users_tasks_table,
+    UsersTable,
+    DesksTable,
+    TasksTable,
+    StatusTable,
+    UsersTasksTable
+)
 
 
 def add_roles():
-    with sync_engine.connect() as conn:
-        stmt = insert(status_table).values(
-            [
-                {"status_name": "user"},
-                {"status_name": "manager"},
-                {"status_name": "admin"}
-            ]
-        )
-        conn.execute(stmt)
-        conn.commit()
+    with session_factory() as session:
+        user = StatusTable(status_name="user")
+        manager = StatusTable(status_name="manager")
+        admin = StatusTable(status_name="admin")
+        session.add_all([user, manager, admin])
+        session.commit()
 
 
 def create_tables():
-    metadata.drop_all(sync_engine)
+    Base.metadata.drop_all(sync_engine)
 
-    metadata.create_all(sync_engine)
+    Base.metadata.create_all(sync_engine)
 
     add_roles()
 
 
-def insert_user(login, password, name, role):
-    with sync_engine.connect() as conn:
-        stmt = insert(users_table).values(
-            [
-                {"login": login, "hash_pass": password, "name": name, "role": role}
-            ]
-        )
-        conn.execute(stmt)
-        conn.commit()
+def insert_user(log, password, name, role):
+    with session_factory() as session:
+        user = UsersTable(login=log, hash_pass=password, name=name, role=role)
+        session.add(user)
+        session.commit()
 
 
 def pass_for_login(login):
-    with (sync_engine.connect() as conn):
-        stmt = (
-            select(
-                users_table.c.hash_pass
-            )
-            .select_from(users_table)
-            .filter(users_table.c.login == login
-                    )
-        )
-        res = conn.execute(stmt)
-        conn.commit()
-        return res.first()
+    with session_factory() as session:
+        user = session.query(UsersTable).filter(UsersTable.login == login).one()
+        print(user.hash_pass)
+        return user.hash_pass
 
 
 def create_new_desk(desk_name, invite_code, admin_id, description):
-    with sync_engine.connect() as conn:
-        stmt = insert(desks_table).values(
-            [
-                {"desk_name": desk_name, "invite_code": invite_code, "admin_id": admin_id, "description": description}
-            ]
-        )
-        conn.execute(stmt)
-        conn.commit()
+    with session_factory() as session:
+        desk = DesksTable(desk_name=desk_name, invite_code=invite_code, admin_id=admin_id, description=description)
+        session.add(desk)
+        session.commit()
 
 
 def create_new_task(desk_id, task_name, description, creator_id, status_id, creation_date, deadline):
-    with sync_engine.connect() as conn:
-        stmt = insert(tasks_table).values(
-            [
-                {"desk_id": desk_id,
-                 "task_name": task_name,
-                 "description": description,
-                 "creator_id": creator_id,
-                 "status_id": status_id,
-                 "creation_date": creation_date,
-                 "deadline": deadline}
-            ]
-        )
-        conn.execute(stmt)
-        conn.commit()
+    with session_factory() as session:
+        task = TasksTable(desk_id=desk_id,
+                          task_name=task_name,
+                          description=description,
+                          creator_id=creator_id,
+                          status_id=status_id,
+                          creation_date=creation_date,
+                          deadline=deadline)
+        session.add(task)
+        session.commit()
+
+
+def users_in_task(task_id, user_list):
+    with session_factory() as session:
+        users = []
+        for x in user_list:
+            users.append(UsersTasksTable(user_id=x, task_id=task_id))
+        session.add_all(users)
+        session.commit()
+
+
+def get_user_from_db(username: str):
+    with session_factory() as session:
+        user = session.query(UsersTable).filter(UsersTable.login == username).one()
+        return user.id
+
+
+def get_desks_for_user(user_id: int):
+    with session_factory() as session:
+        tasks_id = session.query(UsersTasksTable.task_id).filter(UsersTasksTable.user_id == user_id).all()
+        all_tasks = set()
+        for x in tasks_id:
+            all_tasks.add(x[0])
+        print("Vse taski ", all_tasks)
+
+        desks_id = session.query(TasksTable.desk_id).filter(TasksTable.id.in_(all_tasks)).all()
+        all_desks = set()
+        for x in desks_id:
+            all_desks.add(x[0])
+        print("Vse deski", all_desks)
+
+        desks = session.query(DesksTable.id, DesksTable.desk_name, DesksTable.description).filter(DesksTable.id.in_(all_desks)).all()
+        return desks

@@ -10,11 +10,11 @@ class LogPass(BaseModel):
     password: str
 
 
-class User(BaseModel):
+class UserCreateModel(BaseModel):
     login: str
     password: str
     name: str
-    role: str
+    role: int
 
     def new_user_invalid(self):
         print(self.login)

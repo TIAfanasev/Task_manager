@@ -6,7 +6,8 @@ import uvicorn
 import app.models.models as md
 import random
 import jwt
-from app.db.core import create_new_desk, create_new_task
+from app.db.core import create_new_desk, create_new_task, users_in_task, get_user_from_db, get_desks_for_user
+from app.routes.authorization import get_user_from_token
 
 router = APIRouter()
 
@@ -36,3 +37,25 @@ async def create_task(input_data: md.Task):
         return {"status": "success"}
     else:
         return HTTPException(status_code=401, detail="Invalid credentials")
+
+
+@router.put("/task")
+async def add_users_to_task(input_data):
+    if input_data.user_list:
+        users_in_task(input_data.task_id, input_data.user_list)
+        return {"status": "success"}
+    else:
+        return HTTPException(status_code=401, detail="Invalid credentials")
+
+
+@router.get("/desk")
+async def get_desk(
+        token: str = Depends(get_user_from_token)
+):
+    print(token)
+    user_id = get_user_from_db(token)
+    return get_desks_for_user(user_id)
+
+    
+
+
