@@ -3,15 +3,13 @@ from sqlalchemy.orm import aliased
 
 from app.db.database import sync_engine, session_factory, Base
 from app.db.models import (
-    desks_table,
-    tasks_table,
-    users_tasks_table,
     UsersTable,
     DesksTable,
     TasksTable,
     StatusTable,
     UsersTasksTable
 )
+import app.models.models as md
 
 
 def add_roles():
@@ -47,7 +45,10 @@ def pass_for_login(login):
 
 def create_new_desk(desk_name, invite_code, admin_id, description):
     with session_factory() as session:
-        desk = DesksTable(desk_name=desk_name, invite_code=invite_code, admin_id=admin_id, description=description)
+        desk = DesksTable(desk_name=desk_name,
+                          invite_code=invite_code,
+                          admin_id=admin_id,
+                          description=description)
         session.add(desk)
         session.commit()
 
@@ -80,19 +81,39 @@ def get_user_from_db(username: str):
         return user.id
 
 
-def get_desks_for_user(user_id: int):
+def get_all_tasks_for_user(user_id: int):
     with session_factory() as session:
-        tasks_id = session.query(UsersTasksTable.task_id).filter(UsersTasksTable.user_id == user_id).all()
+        tasks_id = session.query(UsersTasksTable.task_id).filter(UsersTasksTable.user_id == user_id).order_by().all()
         all_tasks = set()
         for x in tasks_id:
             all_tasks.add(x[0])
         print("Vse taski ", all_tasks)
+        return all_tasks
 
+
+def get_desks_for_user(user_id: int):
+    all_tasks = get_all_tasks_for_user(user_id)
+    with session_factory() as session:
         desks_id = session.query(TasksTable.desk_id).filter(TasksTable.id.in_(all_tasks)).all()
         all_desks = set()
         for x in desks_id:
             all_desks.add(x[0])
         print("Vse deski", all_desks)
 
-        desks = session.query(DesksTable.id, DesksTable.desk_name, DesksTable.description).filter(DesksTable.id.in_(all_desks)).all()
+        desks = session.query(DesksTable.id, DesksTable.desk_name, DesksTable.invite_code, DesksTable.admin_id,
+                              DesksTable.description).filter(DesksTable.id.in_(all_desks)).all()
         return desks
+
+
+def get_most_important_tasks(user_id: int):
+    all_tasks = get_all_tasks_for_user(user_id)
+    with (session_factory() as session):
+        tasks_info = session.query(TasksTable.id,
+                                   TasksTable.desk_id,
+                                   TasksTable.task_name,
+                                   TasksTable.description,
+                                   TasksTable.deadline
+                                   ).filter(
+                                    TasksTable.id.in_(all_tasks)
+                                    ).limit(2).all()
+        return tasks_info

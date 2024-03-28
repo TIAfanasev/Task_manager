@@ -22,6 +22,7 @@ class UserCreateModel(BaseModel):
 
 
 class Desk(BaseModel):
+    id: int | None
     desk_name: str
     invite_code: str
     admin_id: int
@@ -33,6 +34,7 @@ class Desk(BaseModel):
 
 
 class Task(BaseModel):
+    id: int | None
     desk_id: int
     task_name: str
     description: str
@@ -44,3 +46,11 @@ class Task(BaseModel):
     def new_task_invalid(self):
         print(self.task_name)
         return False
+
+
+class MainTasksOutput(BaseModel):
+    id: int
+    desk_id: int
+    task_name: str
+    description: str
+    deadline: datetime.date

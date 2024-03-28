@@ -48,13 +48,7 @@ async def add_users_to_task(input_data):
         return HTTPException(status_code=401, detail="Invalid credentials")
 
 
-@router.get("/desk")
-async def get_desk(
-        token: str = Depends(get_user_from_token)
-):
-    print(token)
-    user_id = get_user_from_db(token)
-    return get_desks_for_user(user_id)
+
 
     
 
