@@ -6,7 +6,7 @@ import uvicorn
 import app.models.models as md
 import random
 import jwt
-from app.db.core import insert_user, pass_for_login
+from app.db.core import insert_user, pass_for_login, get_user_from_db
 
 router = APIRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
@@ -44,7 +44,8 @@ def check_user_correct(login, password):
 @router.post("/login")
 async def authenticate_user(input_data: md.LogPass):
     if check_user_correct(input_data.login, input_data.password):
-        return {"access_token": gen_token(input_data.login), "token_type": "bearer"}
+        user_id = get_user_from_db(input_data.login)
+        return {"access_token": gen_token(user_id), "token_type": "bearer"}
     else:
         return HTTPException(status_code=401, detail="Invalid credentials")
 

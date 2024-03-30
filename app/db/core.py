@@ -38,9 +38,9 @@ def insert_user(log, password, name, role):
 
 def pass_for_login(login):
     with session_factory() as session:
-        user = session.query(UsersTable).filter(UsersTable.login == login).one()
-        print(user.hash_pass)
-        return user.hash_pass
+        users_pass = session.query(UsersTable.hash_pass).filter(UsersTable.login == login).scalar()
+        print(users_pass)
+        return users_pass
 
 
 def create_new_desk(desk_name, invite_code, admin_id, description):

@@ -15,19 +15,17 @@ router = APIRouter()
 
 @router.get("/main_desks")
 async def get_desk(
-        token: str = Depends(get_user_from_token)
+        token: int = Depends(get_user_from_token)
 ) -> list[md.Desk]:
     print(token)
-    user_id = get_user_from_db(token)
-    desks = get_desks_for_user(user_id)
+    desks = get_desks_for_user(token)
     return desks
 
 
 @router.get("/main_tasks")
 async def get_important_tasks(
-    token: str = Depends(get_user_from_token)
-) -> list[md.MainTasksOutput] :
-    user_id = get_user_from_db(token)
-    tasks = get_most_important_tasks(user_id)
+    token: int = Depends(get_user_from_token)
+) -> list[md.MainTasksOutput]:
+    tasks = get_most_important_tasks(token)
     return tasks
 
