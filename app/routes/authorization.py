@@ -44,8 +44,9 @@ def check_user_correct(login, password):
 @router.post("/login")
 async def authenticate_user(input_data: md.LogPass):
     if check_user_correct(input_data.login, input_data.password):
-        user_id = get_user_from_db(input_data.login)
-        return {"access_token": gen_token(user_id), "token_type": "bearer"}
+        user_id, role = get_user_from_db(input_data.login)
+        subject = {"user_id": user_id, "role": role}
+        return {"access_token": gen_token(subject), "token_type": "bearer"}
     else:
         return HTTPException(status_code=401, detail="Invalid credentials")
 

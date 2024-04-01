@@ -78,7 +78,7 @@ def users_in_task(task_id, user_list):
 def get_user_from_db(username: str):
     with session_factory() as session:
         user = session.query(UsersTable).filter(UsersTable.login == username).one()
-        return user.id
+        return user.id, user.role
 
 
 def get_all_tasks_for_user(user_id: int):

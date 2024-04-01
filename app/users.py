@@ -1,6 +1,6 @@
 
 
-class User():
+class User:
     id: int
     login: str
     hash_pass: str
