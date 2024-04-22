@@ -114,6 +114,38 @@ def get_most_important_tasks(user_id: int):
                                    TasksTable.description,
                                    TasksTable.deadline
                                    ).filter(
-                                    TasksTable.id.in_(all_tasks)
-                                    ).limit(2).all()
+            TasksTable.id.in_(all_tasks)
+        ).limit(2).all()
         return tasks_info
+
+
+def get_all_tasks_for_desk(desk_id: int):
+    with (session_factory() as session):
+        full_tasks = session.query(TasksTable.id,
+                                   TasksTable.desk_id,
+                                   TasksTable.task_name,
+                                   TasksTable.description,
+                                   TasksTable.creator_id,
+                                   TasksTable.status_id,
+                                   TasksTable.creation_date,
+                                   TasksTable.deadline
+                                   ).filter(
+            TasksTable.desk_id == desk_id
+        ).all()
+        print(full_tasks)
+        tasks_with_users = []
+        for one_task in full_tasks:
+            users_info = get_user_info(one_task[0])
+            
+
+
+def get_user_info(task_id: int):
+    with (session_factory() as session):
+        users_list_id = session.query(UsersTasksTable.user_id).filter(UsersTasksTable.task_id == task_id).all()
+        user_info_list = []
+        for user in users_list_id:
+            if user[0]:
+                user_info = session.query(UsersTable.id, UsersTable.login, UsersTable.name, UsersTable.role
+                                          ).filter(UsersTable.id == user[0]).oneornone()
+                user_info_list.append(user_info)
+        return user_info_list
