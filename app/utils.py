@@ -1,14 +1,15 @@
-import os
 from datetime import datetime, timedelta
 from typing import Union, Any
-
 import jwt
+
+from app.config import settings
+
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 30  # 30 minutes
 REFRESH_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days
 ALGORITHM = "HS256"
-JWT_SECRET_KEY = os.environ['JWT_SECRET_KEY']  # should be kept secret
-JWT_REFRESH_SECRET_KEY = os.environ['JWT_REFRESH_SECRET_KEY']  # should be kept secret
+JWT_SECRET_KEY = settings.JWT_SECRET_KEY  # should be kept secret
+JWT_REFRESH_SECRET_KEY = settings.JWT_REFRESH_SECRET_KEY  # should be kept secret
 
 
 def create_access_token(subject: Union[str, Any], expires_delta: int = None) -> str:

@@ -1,7 +1,7 @@
 import datetime
 
 from pydantic import BaseModel, field_validator
-from typing import Union
+from typing import Union, List, Tuple
 import re
 
 
@@ -54,3 +54,22 @@ class MainTasksOutput(BaseModel):
     task_name: str
     description: str
     deadline: datetime.date
+
+
+class UserInfo(BaseModel):
+    id: int
+    login: str
+    name: str
+    role: int
+
+
+class TasksInfoForOneDesk(BaseModel):
+    id: int
+    desk_id: int
+    task_name: str
+    description: str
+    creator_id: int
+    status_id: int
+    creation_date: datetime.date
+    deadline: datetime.date
+    users_list: List[UserInfo]

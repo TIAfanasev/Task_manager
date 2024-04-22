@@ -1,5 +1,6 @@
 from sqlalchemy import Integer, and_, func, insert, select, text, update
 from sqlalchemy.orm import aliased
+from typing import List
 
 from app.db.database import sync_engine, session_factory, Base
 from app.db.models import (
@@ -119,7 +120,7 @@ def get_most_important_tasks(user_id: int):
         return tasks_info
 
 
-def get_all_tasks_for_desk(desk_id: int):
+def get_all_tasks_for_desk(desk_id: int) -> list[md.TasksInfoForOneDesk]:
     with (session_factory() as session):
         full_tasks = session.query(TasksTable.id,
                                    TasksTable.desk_id,
@@ -135,17 +136,28 @@ def get_all_tasks_for_desk(desk_id: int):
         print(full_tasks)
         tasks_with_users = []
         for one_task in full_tasks:
-            users_info = get_user_info(one_task[0])
-            
+            users_info = get_users_info(one_task[0])
+            users_info = [md.UserInfo(id=i[0], login=i[1], name=i[2], role=i[3]) for i in users_info]
+            tasks_with_users.append(md.TasksInfoForOneDesk(id=one_task[0],
+                                                           desk_id=one_task[1],
+                                                           task_name=one_task[2],
+                                                           description=one_task[3],
+                                                           creator_id=one_task[4],
+                                                           status_id=one_task[5],
+                                                           creation_date=one_task[6],
+                                                           deadline=one_task[7],
+                                                           users_list=users_info
+                                                           ))
+        return tasks_with_users
 
 
-def get_user_info(task_id: int):
+def get_users_info(task_id: int) -> list[md.UserCreateModel]:
     with (session_factory() as session):
         users_list_id = session.query(UsersTasksTable.user_id).filter(UsersTasksTable.task_id == task_id).all()
         user_info_list = []
         for user in users_list_id:
             if user[0]:
                 user_info = session.query(UsersTable.id, UsersTable.login, UsersTable.name, UsersTable.role
-                                          ).filter(UsersTable.id == user[0]).oneornone()
+                                          ).filter(UsersTable.id == user[0]).one_or_none()
                 user_info_list.append(user_info)
         return user_info_list
