@@ -40,7 +40,7 @@ async def create_task(input_data: md.Task):
 
 
 @router.put("/task")
-async def add_users_to_task(input_data):
+async def add_users_to_task(input_data: md.InputUsersAddToTask):
     if input_data.user_list:
         users_in_task(input_data.task_id, input_data.user_list)
         return {"status": "success"}

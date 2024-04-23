@@ -73,3 +73,8 @@ class TasksInfoForOneDesk(BaseModel):
     creation_date: datetime.date
     deadline: datetime.date
     users_list: List[UserInfo]
+
+
+class InputUsersAddToTask(BaseModel):
+    task_id: int
+    user_list: list[int]
