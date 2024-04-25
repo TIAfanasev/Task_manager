@@ -4,7 +4,9 @@ from app.db.models import (
     UsersTable,
     DesksTable,
     TasksTable,
-    UsersTasksTable
+    UsersTasksTable,
+    StatusTable,
+    RoleTable
 )
 
 router = APIRouter()
@@ -13,6 +15,16 @@ router = APIRouter()
 @router.post("/test_data")
 async def create_test_data():
     with session_factory() as session:
+        status1 = StatusTable(status_name="created")
+        status2 = StatusTable(status_name="in process")
+        status3 = StatusTable(status_name="completed")
+        session.add_all([status1, status2, status3])
+
+        role1 = RoleTable(role_name="user")
+        role2 = RoleTable(role_name="manager")
+        role3 = RoleTable(role_name="admin")
+        session.add_all([role1, role2, role3])
+
         user = UsersTable(login='user1',
                           hash_pass='fn2oin02jc933d2sok',
                           name='Boris',

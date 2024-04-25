@@ -6,7 +6,7 @@ import re
 
 
 class LogPass(BaseModel):
-    login: str
+    username: str
     password: str
 
 

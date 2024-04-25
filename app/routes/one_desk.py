@@ -8,7 +8,7 @@ import app.models.models as md
 import random
 import jwt
 from app.db.core import get_all_tasks_for_desk
-from app.routes.authorization import get_user_from_token
+from app.utils import check_refresh_token_valid, check_access_token_valid
 
 
 router = APIRouter()
@@ -17,9 +17,8 @@ router = APIRouter()
 @router.get("/desk/{desk_id}", response_model=List[md.TasksInfoForOneDesk])
 async def get_desk(
         desk_id: int,
-        token: int = Depends(get_user_from_token)
+        token: int = Depends(check_access_token_valid)
 ):
-    print(token)
     desk_info = get_all_tasks_for_desk(desk_id)
     print(desk_info)
     return desk_info

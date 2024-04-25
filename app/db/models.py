@@ -33,7 +33,7 @@ class UsersTable(Base):
     login: Mapped[str] = mapped_column(unique=True)
     hash_pass: Mapped[str]
     name: Mapped[str]
-    role: Mapped[int]
+    role: Mapped[int] = mapped_column(ForeignKey("role.id", ondelete="CASCADE"))
 
 
 class DesksTable(Base):
@@ -64,6 +64,13 @@ class StatusTable(Base):
 
     id: Mapped[intpk]
     status_name: Mapped[str] = mapped_column(unique=True)
+
+
+class RoleTable(Base):
+    __tablename__ = "role"
+
+    id: Mapped[intpk]
+    role_name: Mapped[str] = mapped_column(unique=True)
 
 
 class UsersTasksTable(Base):

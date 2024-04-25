@@ -1,6 +1,9 @@
 from datetime import datetime, timedelta
 from typing import Union, Any
 import jwt
+from fastapi import FastAPI, Cookie, HTTPException, Depends
+from fastapi.security import HTTPBasic, HTTPBasicCredentials, OAuth2PasswordBearer, OAuth2PasswordRequestForm
+
 
 from app.config import settings
 
@@ -11,24 +14,47 @@ ALGORITHM = "HS256"
 JWT_SECRET_KEY = settings.JWT_SECRET_KEY  # should be kept secret
 JWT_REFRESH_SECRET_KEY = settings.JWT_REFRESH_SECRET_KEY  # should be kept secret
 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
-def create_access_token(subject: Union[str, Any], expires_delta: int = None) -> str:
+
+async def create_access_token(user_id, role, expires_delta: int = None) -> str:
     if expires_delta is not None:
         expires_delta = datetime.utcnow() + timedelta(minutes=expires_delta)
     else:
         expires_delta = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
 
-    to_encode = {"exp": expires_delta, "sub": subject}
-    encoded_jwt = jwt.encode(to_encode, JWT_SECRET_KEY, ALGORITHM)
+    encoded_jwt = jwt.encode({"exp": expires_delta, "user_id": user_id, "role": role}, JWT_SECRET_KEY, ALGORITHM)
     return encoded_jwt
 
 
-def create_refresh_token(subject: Union[str, Any], expires_delta: int = None) -> str:
+async def create_refresh_token(user_id, role, expires_delta: int = None) -> str:
     if expires_delta is not None:
         expires_delta = datetime.utcnow() + timedelta(minutes=expires_delta)
     else:
         expires_delta = datetime.utcnow() + timedelta(minutes=REFRESH_TOKEN_EXPIRE_MINUTES)
 
-    to_encode = {"exp": expires_delta, "sub": subject}
-    encoded_jwt = jwt.encode(to_encode, JWT_REFRESH_SECRET_KEY, ALGORITHM)
+    encoded_jwt = jwt.encode({"exp": expires_delta, "user_id": user_id, "role": role}, JWT_REFRESH_SECRET_KEY, ALGORITHM)
     return encoded_jwt
+
+
+async def check_access_token_valid(token: str = Depends(oauth2_scheme)):
+    try:
+        payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[ALGORITHM])
+        return payload
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Access token out of time")
+    except jwt.InvalidTokenError:
+        pass  # тут какая-то логика обработки ошибки декодирования токена
+
+
+async def check_refresh_token_valid(token: dict | None):
+    try:
+        payload = jwt.decode(token, JWT_REFRESH_SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("user_id")
+        role = payload.get("role")
+        return {"access_token": create_access_token(user_id, role), "refresh_token": create_refresh_token(user_id, role),
+                "token_type": "bearer"}
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Invalid refresh token")
+    except jwt.InvalidTokenError:
+        pass  # тут какая-то логика обработки ошибки декодирования токена
