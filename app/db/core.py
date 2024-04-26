@@ -151,7 +151,7 @@ def get_all_tasks_for_desk(desk_id: int) -> list[md.TasksInfoForOneDesk]:
         return tasks_with_users
 
 
-def get_users_info(task_id: int) -> list[md.UserCreateModel]:
+def get_users_info(task_id: int) -> list[md.UserInfo]:
     with (session_factory() as session):
         users_list_id = session.query(UsersTasksTable.user_id).filter(UsersTasksTable.task_id == task_id).all()
         user_info_list = []
@@ -161,3 +161,23 @@ def get_users_info(task_id: int) -> list[md.UserCreateModel]:
                                           ).filter(UsersTable.id == user[0]).one_or_none()
                 user_info_list.append(user_info)
         return user_info_list
+
+
+def add_tokens(user_id: int, a_token: str, r_token: str):
+    with (session_factory() as session):
+        user = update(UsersTable
+                      ).where(UsersTable.id == user_id
+                              ).values(access_token=a_token, refresh_token=r_token)
+        session.execute(user)
+        session.commit()
+
+
+# type == 1 if access token check n type == 0 if refresh token check
+def get_user_tokens(token_type: bool, user_id: int):
+    with (session_factory() as session):
+        if token_type:
+            field = UsersTable.access_token
+        else:
+            field = UsersTable.refresh_token
+        token = session.query(field).filter(UsersTable.id == user_id).one_or_none()
+        return token[0]

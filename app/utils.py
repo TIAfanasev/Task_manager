@@ -6,7 +6,7 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials, OAuth2PasswordBear
 
 
 from app.config import settings
-
+from app.db.core import get_user_tokens, add_tokens
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 30  # 30 minutes
 REFRESH_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 days
@@ -40,21 +40,35 @@ async def create_refresh_token(user_id, role, expires_delta: int = None) -> str:
 async def check_access_token_valid(token: str = Depends(oauth2_scheme)):
     try:
         payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[ALGORITHM])
-        return payload
+        user_id = payload.get("user_id")
+        if token == get_user_tokens(True, user_id):
+            return payload
+        else:
+            raise HTTPException(status_code=401, detail="Fake access token!")
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Access token out of time")
     except jwt.InvalidTokenError:
         pass  # тут какая-то логика обработки ошибки декодирования токена
 
 
-async def check_refresh_token_valid(token: dict | None):
+async def check_refresh_token_valid(token: str = Depends(oauth2_scheme)):
     try:
         payload = jwt.decode(token, JWT_REFRESH_SECRET_KEY, algorithms=[ALGORITHM])
         user_id = payload.get("user_id")
         role = payload.get("role")
-        return {"access_token": create_access_token(user_id, role), "refresh_token": create_refresh_token(user_id, role),
-                "token_type": "bearer"}
+        if token == get_user_tokens(False, user_id):
+            access_token = await create_access_token(user_id, role)
+            refresh_token = await create_refresh_token(user_id, role)
+            add_tokens(user_id, access_token, refresh_token)
+            return {"access_token": access_token,
+                    "refresh_token": refresh_token,
+                    "token_type": "bearer"}
+        else:
+            raise HTTPException(status_code=401, detail="Fake refresh token!")
     except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Invalid refresh token")
+        raise HTTPException(status_code=401, detail="Refresh token out of time")
     except jwt.InvalidTokenError:
-        pass  # тут какая-то логика обработки ошибки декодирования токена
+        raise HTTPException(status_code=401, detail="Invalid RT")
+    except Exception as e:
+        raise HTTPException(status_code=401, detail="Invalid refresh token")
+

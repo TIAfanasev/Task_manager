@@ -34,6 +34,8 @@ class UsersTable(Base):
     hash_pass: Mapped[str]
     name: Mapped[str]
     role: Mapped[int] = mapped_column(ForeignKey("role.id", ondelete="CASCADE"))
+    access_token: Mapped[str] = mapped_column(nullable=True)
+    refresh_token: Mapped[str] = mapped_column(nullable=True)
 
 
 class DesksTable(Base):

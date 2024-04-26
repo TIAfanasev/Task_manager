@@ -6,30 +6,13 @@ import uvicorn
 import app.models.models as md
 import random
 import jwt
-from app.db.core import insert_user, pass_for_login, get_user_from_db
-from app.utils import create_access_token, create_refresh_token
+from app.db.core import insert_user, pass_for_login, get_user_from_db, add_tokens
+from app.utils import create_access_token, create_refresh_token, check_refresh_token_valid
 
 router = APIRouter()
 
 SECRET_KEY = "mysecretkey"
 ALGORITHM = "HS256"
-
-
-def gen_token(payload):
-    # обдумать и доделать!!!!!!!
-    return jwt.encode({"sub": payload}, SECRET_KEY, algorithm=ALGORITHM)
-
-
-# def get_user_from_token(token: str = Depends(oauth2_scheme)):
-#     try:
-#         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])  # декодируем токен
-#         return payload.get("sub")  # тут мы идем в полезную нагрузку JWT-токена и возвращаем утверждение о юзере (
-#         # subject); обычно там еще можно взять "iss" - issuer/эмитент, или "exp" - expiration time - время 'сгорания'
-#         # и другое, что мы сами туда кладем
-#     except jwt.ExpiredSignatureError:
-#         pass  # тут какая-то логика ошибки истечения срока действия токена
-#     except jwt.InvalidTokenError:
-#         pass  # тут какая-то логика обработки ошибки декодирования токена
 
 
 # Проверка корректности логина и пароля
@@ -41,13 +24,22 @@ def check_user_correct(login, password):
     return False
 
 
-@router.post("/login")
+@router.get("/login")
 async def authenticate_user(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
     if check_user_correct(form_data.username, form_data.password):
         user_id, role = get_user_from_db(form_data.username)
-        return {"access_token": await create_access_token(user_id, role),
-                "refresh_token": await create_refresh_token(user_id, role),
+        access_token = await create_access_token(user_id, role)
+        refresh_token = await create_refresh_token(user_id, role)
+        add_tokens(user_id, access_token, refresh_token)
+        return {"access_token": access_token,
+                "refresh_token": refresh_token,
                 "token_type": "bearer"}
     else:
         return HTTPException(status_code=401, detail="Invalid credentials")
+
+
+@router.get("/login/refresh_token")
+async def generate_new_tokens(token: dict = Depends(check_refresh_token_valid)):
+    return token
+
 
