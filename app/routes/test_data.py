@@ -28,7 +28,7 @@ async def create_test_data():
         user = UsersTable(login='user1',
                           hash_pass='fn2oin02jc933d2sok',
                           name='Boris',
-                          role=1)
+                          role=3)
         session.add(user)
         session.commit()
 

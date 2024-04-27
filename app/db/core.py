@@ -181,3 +181,34 @@ def get_user_tokens(token_type: bool, user_id: int):
             field = UsersTable.refresh_token
         token = session.query(field).filter(UsersTable.id == user_id).one_or_none()
         return token[0]
+
+
+def get_desk_info(desk_id: int) -> md.Desk:
+    with session_factory() as session:
+        desk_info = session.query(DesksTable.id,
+                                  DesksTable.desk_name,
+                                  DesksTable.invite_code,
+                                  DesksTable.admin_id,
+                                  DesksTable.description).filter(DesksTable.id == desk_id).one()
+        return desk_info
+
+
+def get_user_info(user_id: int):
+    with session_factory() as session:
+        user_info = session.query(UsersTable.id,
+                                  UsersTable.login,
+                                  UsersTable.name,
+                                  UsersTable.role).filter(UsersTable.id == user_id).one()
+        return user_info
+
+
+def update_desk_info(desk):
+    with session_factory() as session:
+        desk_update = update(DesksTable
+                             ).where(DesksTable.id == desk['id']
+                                     ).values(desk_name=desk['desk_name'],
+                                              admin_id=desk['admin_id'],
+                                              description=desk['description'])
+        session.execute(desk_update)
+        session.commit()
+        return desk['id']

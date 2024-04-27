@@ -24,7 +24,7 @@ def check_user_correct(login, password):
     return False
 
 
-@router.get("/login")
+@router.post("/login")
 async def authenticate_user(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
     if check_user_correct(form_data.username, form_data.password):
         user_id, role = get_user_from_db(form_data.username)
@@ -38,7 +38,7 @@ async def authenticate_user(form_data: Annotated[OAuth2PasswordRequestForm, Depe
         return HTTPException(status_code=401, detail="Invalid credentials")
 
 
-@router.get("/login/refresh_token")
+@router.post("/login/refresh_token")
 async def generate_new_tokens(token: dict = Depends(check_refresh_token_valid)):
     return token
 

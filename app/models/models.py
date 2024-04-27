@@ -24,7 +24,7 @@ class UserCreateModel(BaseModel):
 class Desk(BaseModel):
     id: int | None
     desk_name: str
-    invite_code: str
+    invite_code: str | None
     admin_id: int
     description: str
 
