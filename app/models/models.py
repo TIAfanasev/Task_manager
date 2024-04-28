@@ -78,3 +78,9 @@ class TasksInfoForOneDesk(BaseModel):
 class InputUsersAddToTask(BaseModel):
     task_id: int
     user_list: list[int]
+
+
+class UserInfoUpdate(BaseModel):
+    password: str
+    name: str
+    role: int

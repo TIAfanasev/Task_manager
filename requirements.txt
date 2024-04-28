@@ -7,4 +7,4 @@ pydantic
 pydantic_settings
 uvicorn
 pyjwt
-python-keycloak
+python-multipart

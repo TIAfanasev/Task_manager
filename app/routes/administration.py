@@ -12,43 +12,6 @@ from app.utils import check_access_token_valid
 router = APIRouter()
 
 
-@router.post("/desk")
-async def create_desk(input_data: md.Desk,
-                      token: dict = Depends(check_access_token_valid)
-                      ):
-    if token.get("role") in (2, 3):
-        if not input_data.new_desk_invalid():
-            create_new_desk(input_data.desk_name,
-                            input_data.invite_code,
-                            input_data.admin_id,
-                            input_data.description)
-            return {"status": "success"}
-        else:
-            return HTTPException(status_code=401, detail="Invalid credentials")
-    else:
-        return HTTPException(status_code=403, detail="Forbidden")
-
-
-@router.post("/task")
-async def create_task(input_data: md.Task,
-                      token: dict = Depends(check_access_token_valid)
-                      ):
-    if token.get("role") in (2, 3):
-        if not input_data.new_task_invalid():
-            create_new_task(input_data.desk_id,
-                            input_data.task_name,
-                            input_data.description,
-                            input_data.creator_id,
-                            input_data.status_id,
-                            input_data.creation_date,
-                            input_data.deadline)
-            return {"status": "success"}
-        else:
-            return HTTPException(status_code=401, detail="Invalid credentials")
-    else:
-        return HTTPException(status_code=403, detail="Forbidden")
-
-
 @router.put("/task")
 async def add_users_to_task(input_data: md.InputUsersAddToTask,
                             token: dict = Depends(check_access_token_valid)
@@ -63,15 +26,3 @@ async def add_users_to_task(input_data: md.InputUsersAddToTask,
         return HTTPException(status_code=403, detail="Forbidden")
 
 
-@router.post("/create_user")
-async def create_user(input_data: md.UserCreateModel,
-                      token: dict = Depends(check_access_token_valid)
-                      ):
-    if token.get("role") == 3:
-        if not input_data.new_user_invalid():
-            insert_user(input_data.login, input_data.password, input_data.name, input_data.role)
-            return {"status": "success"}
-        else:
-            return HTTPException(status_code=401, detail="Invalid credentials")
-    else:
-        return HTTPException(status_code=403, detail="Forbidden")

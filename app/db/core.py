@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, and_, func, insert, select, text, update
+from sqlalchemy import Integer, and_, func, insert, select, text, update, delete
 from sqlalchemy.orm import aliased
 from typing import List
 
@@ -8,17 +8,21 @@ from app.db.models import (
     DesksTable,
     TasksTable,
     StatusTable,
-    UsersTasksTable
+    UsersTasksTable,
+    RoleTable
 )
 import app.models.models as md
 
 
-def add_roles():
+def add_roles_and_statuses():
     with session_factory() as session:
-        user = StatusTable(status_name="user")
-        manager = StatusTable(status_name="manager")
-        admin = StatusTable(status_name="admin")
-        session.add_all([user, manager, admin])
+        user = RoleTable(role_name="user")
+        manager = RoleTable(role_name="manager")
+        admin = RoleTable(role_name="admin")
+        created = StatusTable(status_name="created")
+        in_process = StatusTable(status_name="in process")
+        completed = StatusTable(status_name="completed")
+        session.add_all([user, manager, admin, created, in_process, completed])
         session.commit()
 
 
@@ -27,7 +31,7 @@ def create_tables():
 
     Base.metadata.create_all(sync_engine)
 
-    add_roles()
+    add_roles_and_statuses()
 
 
 def insert_user(log, password, name, role):
@@ -212,3 +216,17 @@ def update_desk_info(desk):
         session.execute(desk_update)
         session.commit()
         return desk['id']
+
+
+def delete_one_desk(desk_id):
+    with session_factory() as session:
+        delete_task = delete(DesksTable).where(DesksTable.id == desk_id)
+        session.execute(delete_task)
+        session.commit()
+
+
+def delete_one_user(user_id):
+    with session_factory() as session:
+        delete_user = delete(UsersTable).where(UsersTable.id == user_id)
+        session.execute(delete_user)
+        session.commit()
