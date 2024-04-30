@@ -3,14 +3,14 @@ import app.models.models as md
 import random
 import jwt
 from app.db.core import create_new_desk, create_new_task, users_in_task, insert_user, get_desks_for_user, get_user_info, \
-    delete_one_user
+    delete_one_user, update_user_info
 from app.utils import check_access_token_valid
 
 router = APIRouter()
 
 
 # создание нового пользователя (admin role only)
-@router.post("/user")
+@router.post("/create")
 async def create_user(input_data: md.UserCreateModel,
                       token: dict = Depends(check_access_token_valid)
                       ):
@@ -25,7 +25,7 @@ async def create_user(input_data: md.UserCreateModel,
 
 
 # получение информации о пользователе
-@router.get("/user/{user_id}", response_model=md.UserInfo)
+@router.get("/{user_id}", response_model=md.UserInfo)
 async def user_information(
         user_id: int,
         token: dict = Depends(check_access_token_valid)
@@ -40,18 +40,35 @@ async def user_information(
 
 
 # обновление информации о пользователе
-@router.put("/user/{user_id}")
+@router.put("/{user_id}")
 async def user_update(
         user_id: int,
         input_data: md.UserInfoUpdate,
         token: dict = Depends(check_access_token_valid)
 ):
-    #НАПИСАТЬ ПО АНАЛОГИИ С ДЕСКОЙ
+    current_user_id = token.get("user_id")
+    role = token.get("role")
+    current_user = get_user_info(user_id)
+    current_user = current_user._asdict()
+    if user_id == current_user_id or role == 3:
+        if input_data.password != current_user["hash_pass"]:
+            current_user["hash_pass"] = input_data.password
+        if input_data.name != current_user["name"]:
+            current_user["name"] = input_data.name
+        if input_data.role != current_user["role"]:
+            if role == 3:
+                current_user["role"] = input_data.role
+            else:
+                if input_data.role < current_user["role"]:
+                    current_user["role"] = input_data.role
+                else:
+                    raise HTTPException(status_code=403, detail="Forbidden")
+        return get_user_info(update_user_info(current_user))
     pass
 
 
 # удаление пользователя
-@router.delete("/user/{user_id}")
+@router.delete("/{user_id}")
 async def user_delete(
         user_id: int,
         token: dict = Depends(check_access_token_valid)

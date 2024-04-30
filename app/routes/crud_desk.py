@@ -13,7 +13,7 @@ router = APIRouter()
 
 
 # создание новой доски
-@router.post("/desk")
+@router.post("/create")
 async def create_desk(input_data: md.Desk,
                       token: dict = Depends(check_access_token_valid)
                       ):
@@ -31,7 +31,7 @@ async def create_desk(input_data: md.Desk,
 
 
 # получение всех задач для доски
-@router.get("/desk/{desk_id}", response_model=List[md.TasksInfoForOneDesk])
+@router.get("/{desk_id}", response_model=List[md.TasksInfoForOneDesk])
 async def get_desk(
         desk_id: int,
         token: dict = Depends(check_access_token_valid)
@@ -42,7 +42,7 @@ async def get_desk(
 
 
 # Обновление информации о доске
-@router.put("/desk/{desk_id}", response_model=md.Desk)
+@router.put("/{desk_id}", response_model=md.Desk)
 async def update_desk(
         input_data: md.Desk,
         token: dict = Depends(check_access_token_valid)
@@ -67,7 +67,8 @@ async def update_desk(
         raise HTTPException(status_code=403, detail="Forbidden")
 
 
-@router.delete("/desk/{desk_id}")
+# удаление информации о доске
+@router.delete("/{desk_id}")
 async def delete_desk(
         desk_id: int,
         token: dict = Depends(check_access_token_valid)

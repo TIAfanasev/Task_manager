@@ -201,6 +201,7 @@ def get_user_info(user_id: int):
     with session_factory() as session:
         user_info = session.query(UsersTable.id,
                                   UsersTable.login,
+                                  UsersTable.hash_pass,
                                   UsersTable.name,
                                   UsersTable.role).filter(UsersTable.id == user_id).one()
         return user_info
@@ -218,6 +219,19 @@ def update_desk_info(desk):
         return desk['id']
 
 
+def update_user_info(user):
+    with session_factory() as session:
+        user_update = update(UsersTable
+                             ).where(UsersTable.id == user['id']
+                                     ).values(login=user['login'],
+                                              hash_pass=user['hash_pass'],
+                                              name=user['name'],
+                                              role=user["role"])
+        session.execute(user_update)
+        session.commit()
+        return user['id']
+
+
 def delete_one_desk(desk_id):
     with session_factory() as session:
         delete_task = delete(DesksTable).where(DesksTable.id == desk_id)
@@ -229,4 +243,52 @@ def delete_one_user(user_id):
     with session_factory() as session:
         delete_user = delete(UsersTable).where(UsersTable.id == user_id)
         session.execute(delete_user)
+        session.commit()
+
+
+def get_task_info(task_id):
+    with (session_factory() as session):
+        full_task = session.query(TasksTable.id,
+                                  TasksTable.desk_id,
+                                  TasksTable.task_name,
+                                  TasksTable.description,
+                                  TasksTable.creator_id,
+                                  TasksTable.status_id,
+                                  TasksTable.creation_date,
+                                  TasksTable.deadline
+                                  ).filter(
+            TasksTable.id == task_id
+        ).one()
+        users_info = get_users_info(full_task[0])
+        users_info = [md.UserInfo(id=i[0], login=i[1], name=i[2], role=i[3]) for i in users_info]
+        task_info = md.TasksInfoForOneDesk(id=full_task[0],
+                                           desk_id=full_task[1],
+                                           task_name=full_task[2],
+                                           description=full_task[3],
+                                           creator_id=full_task[4],
+                                           status_id=full_task[5],
+                                           creation_date=full_task[6],
+                                           deadline=full_task[7],
+                                           users_list=users_info)
+        return task_info
+
+
+def update_task_info(task):
+    with session_factory() as session:
+        task_update = update(TasksTable
+                             ).where(TasksTable.id == task['id']
+                                     ).values(task_name=task['login'],
+                                              description=task['hash_pass'],
+                                              status_id=task['name'],
+                                              deadline=task["role"])
+        session.execute(task_update)
+        session.commit()
+        users_in_task(task_id=task['id'], user_list=task["users_list"])
+        return task['id']
+
+
+def delete_one_task(task_id: int):
+    with session_factory() as session:
+        delete_task = delete(TasksTable).where(TasksTable.id == task_id)
+        session.execute(delete_task)
         session.commit()

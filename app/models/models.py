@@ -64,15 +64,15 @@ class UserInfo(BaseModel):
 
 
 class TasksInfoForOneDesk(BaseModel):
-    id: int
-    desk_id: int
-    task_name: str
-    description: str
-    creator_id: int
-    status_id: int
-    creation_date: datetime.date
-    deadline: datetime.date
-    users_list: List[UserInfo]
+    id: int | None
+    desk_id: int | None
+    task_name: str | None
+    description: str | None
+    creator_id: int | None
+    status_id: int | None
+    creation_date: datetime.date | None
+    deadline: datetime.date | None
+    users_list: List[UserInfo] | None
 
 
 class InputUsersAddToTask(BaseModel):
