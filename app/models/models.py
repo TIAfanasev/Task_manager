@@ -1,7 +1,7 @@
 import datetime
 
 from pydantic import BaseModel, field_validator
-from typing import Union, List, Tuple
+from typing import Union, List, Tuple, Optional
 import re
 
 
@@ -22,9 +22,9 @@ class UserCreateModel(BaseModel):
 
 
 class Desk(BaseModel):
-    id: int | None
+    id: Optional[int] = None
     desk_name: str
-    invite_code: str | None
+    invite_code: Optional[str] = None
     admin_id: int
     description: str
 
@@ -34,7 +34,7 @@ class Desk(BaseModel):
 
 
 class Task(BaseModel):
-    id: int | None
+    id: Optional[int] = None
     desk_id: int
     task_name: str
     description: str
@@ -64,15 +64,15 @@ class UserInfo(BaseModel):
 
 
 class TasksInfoForOneDesk(BaseModel):
-    id: int | None
-    desk_id: int | None
-    task_name: str | None
-    description: str | None
-    creator_id: int | None
-    status_id: int | None
-    creation_date: datetime.date | None
-    deadline: datetime.date | None
-    users_list: List[UserInfo] | None
+    id: Optional[int] = None
+    desk_id: Optional[int] = None
+    task_name: Optional[str] = None
+    description: Optional[str] = None
+    creator_id: Optional[int] = None
+    status_id: Optional[int] = None
+    creation_date: Optional[datetime.date] = None
+    deadline: Optional[datetime.date] = None
+    users_list: Optional[List[UserInfo]] = None
 
 
 class InputUsersAddToTask(BaseModel):

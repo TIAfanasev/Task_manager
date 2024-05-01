@@ -11,9 +11,6 @@ from app.utils import create_access_token, create_refresh_token, check_refresh_t
 
 router = APIRouter()
 
-SECRET_KEY = "mysecretkey"
-ALGORITHM = "HS256"
-
 
 # Проверка корректности логина и пароля
 def check_user_correct(login, password):

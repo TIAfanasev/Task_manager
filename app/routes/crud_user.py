@@ -40,7 +40,7 @@ async def user_information(
 
 
 # обновление информации о пользователе
-@router.put("/{user_id}")
+@router.put("/{user_id}", response_model=md.UserInfo)
 async def user_update(
         user_id: int,
         input_data: md.UserInfoUpdate,
@@ -56,6 +56,8 @@ async def user_update(
         if input_data.name != current_user["name"]:
             current_user["name"] = input_data.name
         if input_data.role != current_user["role"]:
+            if input_data.role not in (1, 3):
+                raise HTTPException(status_code=400, detail="Wrong role")
             if role == 3:
                 current_user["role"] = input_data.role
             else:
@@ -63,7 +65,9 @@ async def user_update(
                     current_user["role"] = input_data.role
                 else:
                     raise HTTPException(status_code=403, detail="Forbidden")
-        return get_user_info(update_user_info(current_user))
+        update_user_info(current_user)
+        user_info = get_user_info(user_id)
+        return user_info
     pass
 
 

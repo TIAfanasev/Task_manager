@@ -53,18 +53,22 @@ async def task_update(
     current_user_id = token.get("user_id")
     role = token.get("role")
     current_task = get_task_info(task_id=task_id)
-    current_task = current_task._asdict()
-    if role == 3 or current_task["creator_id"] == current_user_id:
-        if input_data.task_name != current_task["task_name"]:
-            current_task["task_name"] = input_data.task_name
-        if input_data.description != current_task["description"]:
-            current_task["description"] = input_data.description
-        if input_data.status_id != current_task["status_id"]:
-            current_task["status_id"] = input_data.status_id
-        if input_data.deadline != current_task["deadline"]:
-            current_task["deadline"] = input_data.deadline
-        if input_data.users_list.sort() != current_task["users_list"].sort():
-            current_task["users_list"] = input_data.users_list
+    if role == 3 or current_task.creator_id == current_user_id:
+        if input_data.task_name != current_task.task_name:
+            current_task.task_name = input_data.task_name
+        if input_data.description != current_task.description:
+            current_task.description = input_data.description
+        if input_data.status_id != current_task.status_id:
+            current_task.status_id = input_data.status_id
+        if input_data.deadline != current_task.deadline:
+            current_task.deadline = input_data.deadline
+
+        input_users_list = [x.id for x in input_data.users_list]
+        current_users_list = [x.id for x in current_task.users_list]
+        input_users_list.sort()
+        current_users_list.sort()
+        if input_users_list != current_users_list:
+            current_task.users_list = input_data.users_list
         return get_task_info(update_task_info(current_task))
 
 

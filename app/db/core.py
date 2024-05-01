@@ -73,9 +73,11 @@ def create_new_task(desk_id, task_name, description, creator_id, status_id, crea
 
 def users_in_task(task_id, user_list):
     with session_factory() as session:
+        delete_old_users = delete(UsersTasksTable).where(UsersTasksTable.task_id == task_id)
+        session.execute(delete_old_users)
         users = []
         for x in user_list:
-            users.append(UsersTasksTable(user_id=x, task_id=task_id))
+            users.append(UsersTasksTable(user_id=x.id, task_id=task_id))
         session.add_all(users)
         session.commit()
 
@@ -229,7 +231,6 @@ def update_user_info(user):
                                               role=user["role"])
         session.execute(user_update)
         session.commit()
-        return user['id']
 
 
 def delete_one_desk(desk_id):
@@ -276,15 +277,15 @@ def get_task_info(task_id):
 def update_task_info(task):
     with session_factory() as session:
         task_update = update(TasksTable
-                             ).where(TasksTable.id == task['id']
-                                     ).values(task_name=task['login'],
-                                              description=task['hash_pass'],
-                                              status_id=task['name'],
-                                              deadline=task["role"])
+                             ).where(TasksTable.id == task.id
+                                     ).values(task_name=task.task_name,
+                                              description=task.description,
+                                              status_id=task.status_id,
+                                              deadline=task.deadline)
         session.execute(task_update)
         session.commit()
-        users_in_task(task_id=task['id'], user_list=task["users_list"])
-        return task['id']
+        users_in_task(task_id=task.id, user_list=task.users_list)
+        return task.id
 
 
 def delete_one_task(task_id: int):

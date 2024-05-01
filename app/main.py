@@ -2,10 +2,8 @@ import uvicorn
 from fastapi import FastAPI
 
 from app.routes.authorization import router as auth_router
-from app.routes.administration import router as admin_router
-from app.routes.test_data import router as test_router
+from app.routes.test_data import router as test_router, create_test_data
 from app.routes.main_page import router as main_page_router
-from app.routes.one_desk import router as one_desk_router
 from app.routes.crud_desk import router as desk_router
 from app.routes.crud_user import router as user_router
 from app.routes.crud_task import router as task_router
@@ -20,11 +18,11 @@ app.include_router(task_router, prefix="/task")
 app.include_router(main_page_router)
 app.include_router(test_router)
 app.include_router(auth_router)
-app.include_router(one_desk_router)
-app.include_router(admin_router)
 
 if __name__ == '__main__':
     create_tables()
+    create_test_data()
+
     uvicorn.run(app,
                 host='127.0.0.1',
                 port=8080)

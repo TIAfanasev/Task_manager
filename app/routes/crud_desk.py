@@ -32,7 +32,7 @@ async def create_desk(input_data: md.Desk,
 
 # получение всех задач для доски
 @router.get("/{desk_id}", response_model=List[md.TasksInfoForOneDesk])
-async def get_desk(
+async def desk_information(
         desk_id: int,
         token: dict = Depends(check_access_token_valid)
 ):
@@ -43,7 +43,7 @@ async def get_desk(
 
 # Обновление информации о доске
 @router.put("/{desk_id}", response_model=md.Desk)
-async def update_desk(
+async def desk_update(
         input_data: md.Desk,
         token: dict = Depends(check_access_token_valid)
 ):
@@ -69,7 +69,7 @@ async def update_desk(
 
 # удаление информации о доске
 @router.delete("/{desk_id}")
-async def delete_desk(
+async def desk_delete(
         desk_id: int,
         token: dict = Depends(check_access_token_valid)
 ):

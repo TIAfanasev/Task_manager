@@ -12,14 +12,14 @@ from app.db.models import (
 router = APIRouter()
 
 
-@router.post("/test_data")
-async def create_test_data():
+def create_test_data():
     with session_factory() as session:
         user1 = UsersTable(login='user1',
                            hash_pass='fn2oin02jc933d2sok',
                            name='Boris',
                            role=3)
-
+        session.add(user1)
+        session.commit()
         desk1 = DesksTable(desk_name="desk1",
                            invite_code="qfv2vjenov4nfd2hd0",
                            admin_id=1,
@@ -46,6 +46,6 @@ async def create_test_data():
 
         conn1 = UsersTasksTable(user_id=1, task_id=1)
         conn2 = UsersTasksTable(user_id=1, task_id=2)
-        session.add_all([user1, desk1, desk2, task1, task2, conn1, conn2])
+        session.add_all([desk1, desk2, task1, task2, conn1, conn2])
 
         session.commit()
