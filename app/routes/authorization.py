@@ -1,12 +1,7 @@
-from fastapi import FastAPI, Cookie, HTTPException, Request, Header, Depends, APIRouter
-from fastapi.responses import FileResponse, JSONResponse
-from fastapi.security import HTTPBasic, HTTPBasicCredentials, OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi import HTTPException, Depends, APIRouter
+from fastapi.security import OAuth2PasswordRequestForm
 from typing import Annotated
-import uvicorn
-import app.models.models as md
-import random
-import jwt
-from app.db.core import insert_user, pass_for_login, get_user_from_db, add_tokens
+from app.db.core import pass_for_login, get_user_from_db, add_tokens
 from app.utils import create_access_token, create_refresh_token, check_refresh_token_valid
 
 router = APIRouter()

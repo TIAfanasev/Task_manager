@@ -1,6 +1,4 @@
-from sqlalchemy import Integer, and_, func, insert, select, text, update, delete
-from sqlalchemy.orm import aliased
-from typing import List
+from sqlalchemy import update, delete
 
 from app.db.database import sync_engine, session_factory, Base
 from app.db.models import (

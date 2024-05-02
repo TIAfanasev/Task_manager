@@ -1,8 +1,7 @@
 import datetime
 
-from pydantic import BaseModel, field_validator
-from typing import Union, List, Tuple, Optional
-import re
+from pydantic import BaseModel
+from typing import List, Optional
 
 
 class LogPass(BaseModel):

@@ -1,9 +1,7 @@
 from datetime import datetime, timedelta
-from typing import Union, Any
 import jwt
-from fastapi import FastAPI, Cookie, HTTPException, Depends
-from fastapi.security import HTTPBasic, HTTPBasicCredentials, OAuth2PasswordBearer, OAuth2PasswordRequestForm
-
+from fastapi import HTTPException, Depends
+from fastapi.security import OAuth2PasswordBearer
 
 from app.config import settings
 from app.db.core import get_user_tokens, add_tokens

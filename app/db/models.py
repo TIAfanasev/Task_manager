@@ -1,24 +1,11 @@
 import datetime
-import enum
-from typing import Annotated, Optional
+from typing import Annotated
 
 from sqlalchemy import (
-    TIMESTAMP,
-    CheckConstraint,
-    Column,
-    Enum,
     ForeignKey,
-    Index,
-    Integer,
-    MetaData,
-    PrimaryKeyConstraint,
-    String,
-    Table,
-    text,
-    Date,
-    func
+    MetaData
 )
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 from app.db.database import Base
 
 metadata = MetaData()

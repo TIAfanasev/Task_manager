@@ -4,9 +4,7 @@ from app.db.models import (
     UsersTable,
     DesksTable,
     TasksTable,
-    UsersTasksTable,
-    StatusTable,
-    RoleTable
+    UsersTasksTable
 )
 
 router = APIRouter()

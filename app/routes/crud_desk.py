@@ -1,12 +1,6 @@
-from typing import List
-
-from fastapi import FastAPI, Cookie, HTTPException, Request, Header, Depends, APIRouter
+from fastapi import HTTPException, Depends, APIRouter
 import app.models.models as md
-import random
-import jwt
-from app.db.core import create_new_desk, create_new_task, users_in_task, insert_user, get_desks_for_user, \
-    get_all_tasks_for_desk, get_desk_info, get_user_info, update_desk_info, delete_one_desk
-from app.models.models import Desk
+from app.db.core import create_new_desk, get_desk_info, get_user_info, update_desk_info, delete_one_desk
 from app.utils import check_access_token_valid
 
 router = APIRouter()
