@@ -84,3 +84,12 @@ class UserInfoUpdate(BaseModel):
     password: str
     name: str
     role: int
+
+
+class FullDeskInfo(BaseModel):
+    id: Optional[int] = None
+    desk_name: Optional[str] = None
+    invite_code: Optional[str] = None
+    admin_id: Optional[int] = None
+    description: Optional[str] = None
+    tasks_list: Optional[List[TasksInfoForOneDesk]] = None

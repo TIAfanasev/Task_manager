@@ -30,14 +30,13 @@ async def create_desk(input_data: md.Desk,
         return HTTPException(status_code=403, detail="Forbidden")
 
 
-# получение всех задач для доски
-@router.get("/{desk_id}", response_model=List[md.TasksInfoForOneDesk])
+# получение информации о доске
+@router.get("/{desk_id}", response_model=md.FullDeskInfo)
 async def desk_information(
         desk_id: int,
         token: dict = Depends(check_access_token_valid)
 ):
-    desk_info = get_all_tasks_for_desk(desk_id)
-    print(desk_info)
+    desk_info = get_desk_info(desk_id)
     return desk_info
 
 

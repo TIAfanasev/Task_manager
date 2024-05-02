@@ -189,14 +189,25 @@ def get_user_tokens(token_type: bool, user_id: int):
         return token[0]
 
 
-def get_desk_info(desk_id: int) -> md.Desk:
+def get_desk_info(desk_id: int):
     with session_factory() as session:
         desk_info = session.query(DesksTable.id,
                                   DesksTable.desk_name,
                                   DesksTable.invite_code,
                                   DesksTable.admin_id,
                                   DesksTable.description).filter(DesksTable.id == desk_id).one()
-        return desk_info
+        all_tasks = session.query(TasksTable.id).where(TasksTable.desk_id == desk_id).all()
+        all_tasks_list = []
+        for x in all_tasks:
+            all_tasks_list.append(get_task_info(x[0]))
+        desk_info_result = md.FullDeskInfo(id=desk_info[0],
+                                           desk_name=desk_info[1],
+                                           invite_code=desk_info[2],
+                                           admin_id=desk_info[3],
+                                           description=desk_info[4],
+                                           tasks_list=all_tasks_list)
+
+        return desk_info_result
 
 
 def get_user_info(user_id: int):
