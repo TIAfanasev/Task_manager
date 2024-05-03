@@ -12,8 +12,8 @@ router = APIRouter()
 
 def create_test_data():
     with session_factory() as session:
-        user1 = UsersTable(login='user1',
-                           hash_pass='fn2oin02jc933d2sok',
+        user1 = UsersTable(login='user',
+                           hash_pass='950d36187c975bbc97adcdb248dcc2c5',
                            name='Boris',
                            role=3)
         session.add(user1)
