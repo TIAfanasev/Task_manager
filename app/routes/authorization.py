@@ -24,10 +24,9 @@ async def authenticate_user(form_data: Annotated[OAuth2PasswordRequestForm, Depe
         refresh_token = await create_refresh_token(user_id, role)
         add_tokens(user_id, access_token, refresh_token)
         return {"access_token": access_token,
-                "refresh_token": refresh_token,
-                "token_type": "bearer"}
+                "refresh_token": refresh_token}
     else:
-        return HTTPException(status_code=401, detail="Invalid credentials")
+        raise HTTPException(status_code=401, detail="Invalid credentials")
 
 
 @router.post("/login/refresh_token")
