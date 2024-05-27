@@ -65,7 +65,7 @@ async def user_update(
         update_user_info(current_user)
         user_info = get_user_info(user_id)
         return user_info
-    pass
+    return HTTPException(status_code=403, detail="Forbidden")
 
 
 # удаление пользователя

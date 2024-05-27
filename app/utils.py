@@ -47,7 +47,7 @@ async def check_access_token_valid(token: str = Depends(oauth2_scheme)):
         except jwt.ExpiredSignatureError:
             raise HTTPException(status_code=401, detail="Access token out of time")
         except jwt.InvalidTokenError:
-            pass  # тут какая-то логика обработки ошибки декодирования токена
+            raise HTTPException(status_code=401, detail="Bad token")
     else:
         raise HTTPException(status_code=401, detail="Unauthorized")
 

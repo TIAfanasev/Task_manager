@@ -1,8 +1,8 @@
 from fastapi import HTTPException, Depends, APIRouter
 from fastapi.security import OAuth2PasswordRequestForm
 from typing import Annotated
-from app.db.core import pass_for_login, get_user_from_db, add_tokens
-from app.utils import create_access_token, create_refresh_token, check_refresh_token_valid
+from app.db.core import pass_for_login, get_user_from_db, add_tokens, delete_tokens_logout
+from app.utils import create_access_token, create_refresh_token, check_refresh_token_valid, check_access_token_valid
 
 router = APIRouter()
 
@@ -32,5 +32,12 @@ async def authenticate_user(form_data: Annotated[OAuth2PasswordRequestForm, Depe
 @router.post("/login/refresh_token")
 async def generate_new_tokens(token: dict = Depends(check_refresh_token_valid)):
     return token
+
+
+@router.get("/logout")
+async def logout_user(token: dict = Depends(check_access_token_valid)):
+    user_id = token.get("user_id")
+    delete_tokens_logout(user_id)
+    return {"status": "success"}
 
 

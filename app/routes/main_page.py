@@ -1,6 +1,8 @@
+from typing import List
+
 from fastapi import Depends, APIRouter
 import app.models.models as md
-from app.db.core import get_desks_for_user, get_most_important_tasks
+from app.db.core import get_desks_for_user, get_most_important_tasks, get_users_info
 from app.utils import check_access_token_valid
 
 
@@ -22,4 +24,13 @@ async def get_important_tasks(
 ) -> list[md.MainTasksOutput]:
     tasks = get_most_important_tasks(token.get("user_id"))
     return tasks
+
+
+@router.get("/all_users", response_model=List[md.UserInfo])
+async def get_all_users_list(
+        token: dict = Depends(check_access_token_valid)
+):
+
+    users = get_users_info(0)
+    return users
 

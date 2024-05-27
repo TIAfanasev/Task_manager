@@ -155,16 +155,20 @@ def get_all_tasks_for_desk(desk_id: int) -> list[md.TasksInfoForOneDesk]:
         return tasks_with_users
 
 
-def get_users_info(task_id: int) -> list[md.UserInfo]:
+def get_users_info(task_id: int = 0) -> list[md.UserInfo]:
     with (session_factory() as session):
-        users_list_id = session.query(UsersTasksTable.user_id).filter(UsersTasksTable.task_id == task_id).all()
-        user_info_list = []
-        for user in users_list_id:
-            if user[0]:
-                user_info = session.query(UsersTable.id, UsersTable.login, UsersTable.name, UsersTable.role
-                                          ).filter(UsersTable.id == user[0]).one_or_none()
-                user_info_list.append(user_info)
-        return user_info_list
+        if task_id:
+            users_list_id = session.query(UsersTasksTable.user_id).filter(UsersTasksTable.task_id == task_id).all()
+            user_info_list = []
+            for user in users_list_id:
+                if user[0]:
+                    user_info = session.query(UsersTable.id, UsersTable.login, UsersTable.name, UsersTable.role
+                                              ).filter(UsersTable.id == user[0]).one_or_none()
+                    user_info_list.append(user_info)
+            return user_info_list
+        else:
+            users_list = session.query(UsersTable.id, UsersTable.login, UsersTable.name, UsersTable.role).all()
+            return users_list
 
 
 def add_tokens(user_id: int, a_token: str, r_token: str):
@@ -301,4 +305,14 @@ def delete_one_task(task_id: int):
     with session_factory() as session:
         delete_task = delete(TasksTable).where(TasksTable.id == task_id)
         session.execute(delete_task)
+        session.commit()
+
+
+def delete_tokens_logout(user_id: int):
+    with (session_factory() as session):
+        delete_tokens = update(UsersTable
+                               ).where(UsersTable.id == user_id
+                                       ).values(access_token=None,
+                                                refresh_token=None)
+        session.execute(delete_tokens)
         session.commit()
