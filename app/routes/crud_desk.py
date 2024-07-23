@@ -13,11 +13,11 @@ async def create_desk(input_data: md.Desk,
                       ):
     if token.get("role") in (2, 3):
         if not input_data.new_desk_invalid():
-            create_new_desk(input_data.desk_name,
-                            input_data.invite_code,
-                            input_data.admin_id,
-                            input_data.description)
-            return {"status": "success"}
+            new_desk_id = create_new_desk(input_data.desk_name,
+                                          input_data.invite_code,
+                                          input_data.admin_id,
+                                          input_data.description)
+            return {"id": f"{new_desk_id}"}
         else:
             return HTTPException(status_code=401, detail="Invalid credentials")
     else:

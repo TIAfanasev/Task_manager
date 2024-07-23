@@ -1,14 +1,10 @@
 import datetime
 from typing import Annotated
 
-from sqlalchemy import (
-    ForeignKey,
-    MetaData
-)
+from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 from app.db.database import Base
 
-metadata = MetaData()
 
 intpk = Annotated[int, mapped_column(primary_key=True)]
 
@@ -19,7 +15,7 @@ class UsersTable(Base):
     id: Mapped[intpk]
     login: Mapped[str] = mapped_column(unique=True)
     hash_pass: Mapped[str]
-    name: Mapped[str]
+    name: Mapped[str] = mapped_column(unique=True)
     role: Mapped[int] = mapped_column(ForeignKey("role.id", ondelete="CASCADE"))
     access_token: Mapped[str] = mapped_column(nullable=True)
     refresh_token: Mapped[str] = mapped_column(nullable=True)
@@ -64,7 +60,8 @@ class RoleTable(Base):
 
 class UsersTasksTable(Base):
     __tablename__ = "users_tasks"
+
     id: Mapped[intpk]
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
-    task_id: Mapped[int] = mapped_column(ForeignKey("desks.id", ondelete="CASCADE"))
+    task_id: Mapped[int] = mapped_column(ForeignKey("tasks.id", ondelete="CASCADE"))
 

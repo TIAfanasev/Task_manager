@@ -16,6 +16,10 @@ def create_test_data():
                            hash_pass='950d36187c975bbc97adcdb248dcc2c5',
                            name='Boris',
                            role=3)
+        user2 = UsersTable(login='user2',
+                           hash_pass='950d36187c975bbc97adcdb248dcc2c5',
+                           name='Vova',
+                           role=2)
         session.add(user1)
         session.commit()
         desk1 = DesksTable(desk_name="desk1",

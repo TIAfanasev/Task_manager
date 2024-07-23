@@ -13,14 +13,15 @@ async def create_task(input_data: md.Task,
                       ):
     if token.get("role") in (2, 3):
         if not input_data.new_task_invalid():
-            create_new_task(input_data.desk_id,
-                            input_data.task_name,
-                            input_data.description,
-                            input_data.creator_id,
-                            input_data.status_id,
-                            input_data.creation_date,
-                            input_data.deadline)
-            return {"status": "success"}
+            new_task_id = create_new_task(input_data.desk_id,
+                                          input_data.task_name,
+                                          input_data.description,
+                                          input_data.creator_id,
+                                          input_data.status_id,
+                                          input_data.creation_date,
+                                          input_data.deadline,
+                                          input_data.users_list)
+            return {"id": f"{new_task_id}"}
         else:
             return HTTPException(status_code=401, detail="Invalid credentials")
     else:

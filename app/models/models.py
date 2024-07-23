@@ -32,8 +32,15 @@ class Desk(BaseModel):
         return False
 
 
+class UserInfo(BaseModel):
+    id: int
+    login: str
+    name: str
+    role: int
+
+
 class Task(BaseModel):
-    id: Optional[int] = None
+    # id: Optional[int] = None
     desk_id: int
     task_name: str
     description: str
@@ -41,6 +48,7 @@ class Task(BaseModel):
     status_id: int
     creation_date: datetime.date
     deadline: datetime.date
+    users_list: Optional[List[UserInfo]] = None
 
     def new_task_invalid(self):
         print(self.task_name)
@@ -53,13 +61,6 @@ class MainTasksOutput(BaseModel):
     task_name: str
     description: str
     deadline: datetime.date
-
-
-class UserInfo(BaseModel):
-    id: int
-    login: str
-    name: str
-    role: int
 
 
 class TasksInfoForOneDesk(BaseModel):

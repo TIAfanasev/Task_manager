@@ -55,8 +55,14 @@ def create_new_desk(desk_name, invite_code, admin_id, description):
         session.add(desk)
         session.commit()
 
+        new_desk_id = session.query(DesksTable.id).filter(DesksTable.desk_name == desk_name,
+                                                          DesksTable.invite_code == invite_code,
+                                                          DesksTable.admin_id == admin_id,
+                                                          DesksTable.description == description).one()
+        return new_desk_id[0]
 
-def create_new_task(desk_id, task_name, description, creator_id, status_id, creation_date, deadline):
+
+def create_new_task(desk_id, task_name, description, creator_id, status_id, creation_date, deadline, users_list):
     with session_factory() as session:
         task = TasksTable(desk_id=desk_id,
                           task_name=task_name,
@@ -67,6 +73,17 @@ def create_new_task(desk_id, task_name, description, creator_id, status_id, crea
                           deadline=deadline)
         session.add(task)
         session.commit()
+
+        new_task = session.query(TasksTable.id).filter(TasksTable.desk_id == desk_id,
+                                                       TasksTable.task_name == task_name,
+                                                       TasksTable.description == description,
+                                                       TasksTable.creator_id == creator_id,
+                                                       TasksTable.status_id == status_id,
+                                                       TasksTable.creation_date == creation_date,
+                                                       TasksTable.deadline == deadline).one()
+
+        users_in_task(new_task[0], users_list)
+        return new_task[0]
 
 
 def users_in_task(task_id, user_list):
@@ -99,9 +116,12 @@ def get_all_tasks_for_user(user_id: int):
 def get_desks_for_user(user_id: int):
     all_tasks = get_all_tasks_for_user(user_id)
     with session_factory() as session:
-        desks_id = session.query(TasksTable.desk_id).filter(TasksTable.id.in_(all_tasks)).all()
+        desks_id_user = session.query(TasksTable.desk_id).filter(TasksTable.id.in_(all_tasks)).all()
+        desks_id_admin = session.query(DesksTable.id).filter(DesksTable.admin_id == user_id)
         all_desks = set()
-        for x in desks_id:
+        for x in desks_id_user:
+            all_desks.add(x[0])
+        for x in desks_id_admin:
             all_desks.add(x[0])
         print("Vse deski", all_desks)
 
