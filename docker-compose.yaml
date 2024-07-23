@@ -2,7 +2,6 @@ version: '3.8'
 name: task_manager
 services:
   db:
-
     image: postgres
     container_name: database
     restart: always
@@ -13,11 +12,22 @@ services:
     ports:
       - "5433:5432"
 
-
   backend:
-    image: tiafanasev/task_manager_back:backend
+    image: tiafanasev/task_manager:backend
     depends_on:
       - db
     command: uvicorn app.main:app --reload --workers 1 --host 0.0.0.0 --port 8080
     ports:
       - "8080:8080"
+
+  client:
+    container_name: task-manager-client
+    image: alexkrasnov123/task-manager-client
+    ports:
+      - "4200:4200"
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+      restart_policy:
+        condition: on-failure
