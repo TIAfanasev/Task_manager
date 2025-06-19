@@ -1,4 +1,4 @@
-from sqlalchemy import update, delete
+from sqlalchemy import update, delete, and_, desc
 
 from app.db.database import sync_engine, session_factory, Base
 from app.db.models import (
@@ -25,7 +25,7 @@ def add_roles_and_statuses():
 
 
 def create_tables():
-    Base.metadata.drop_all(sync_engine)
+    # Base.metadata.drop_all(sync_engine)
 
     Base.metadata.create_all(sync_engine)
 
@@ -41,9 +41,9 @@ def insert_user(log, password, name, role):
 
 def pass_for_login(login):
     with session_factory() as session:
-        users_pass = session.query(UsersTable.hash_pass).filter(UsersTable.login == login).scalar()
-        print(users_pass)
-        return users_pass
+        users_pass = session.query(UsersTable.hash_pass).filter(UsersTable.login == login).one()
+        print(users_pass[0])
+        return users_pass[0]
 
 
 def create_new_desk(desk_name, invite_code, admin_id, description):
@@ -139,8 +139,8 @@ def get_most_important_tasks(user_id: int):
                                    TasksTable.description,
                                    TasksTable.deadline
                                    ).filter(
-            TasksTable.id.in_(all_tasks)
-        ).limit(2).all()
+            and_(TasksTable.id.in_(all_tasks), TasksTable.status_id.in_((1, 2)))
+        ).order_by(desc(TasksTable.deadline)).limit(2).all()
         return tasks_info
 
 

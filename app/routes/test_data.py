@@ -13,14 +13,14 @@ router = APIRouter()
 def create_test_data():
     with session_factory() as session:
         user1 = UsersTable(login='user',
-                           hash_pass='950d36187c975bbc97adcdb248dcc2c5',
+                           hash_pass='b650064e064bd5001a085a980de033c0',
                            name='Boris',
                            role=3)
         user2 = UsersTable(login='user2',
-                           hash_pass='950d36187c975bbc97adcdb248dcc2c5',
-                           name='Vova',
+                           hash_pass='a83f9e9fc61f3c6546611c4248b4cd78',
+                           name='Vladimir',
                            role=2)
-        session.add(user1)
+        session.add_all([user1, user2])
         session.commit()
         desk1 = DesksTable(desk_name="desk1",
                            invite_code="qfv2vjenov4nfd2hd0",

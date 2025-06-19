@@ -1,9 +1,12 @@
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy_utils import database_exists, create_database
 
+from app.db.core import create_tables
+from app.db.database import sync_engine
 from app.routes.authorization import router as auth_router
-from app.routes.test_data import router as test_router
+from app.routes.test_data import router as test_router, create_test_data
 from app.routes.main_page import router as main_page_router
 from app.routes.crud_desk import router as desk_router
 from app.routes.crud_user import router as user_router
@@ -33,6 +36,13 @@ app.include_router(main_page_router)
 app.include_router(test_router)
 app.include_router(auth_router)
 
+if database_exists(sync_engine.url):
+    create_tables()
+    create_test_data()
+else:
+    create_database(sync_engine.url)
+    create_tables()
+    create_test_data()
 
 # if __name__ == "__main__":
 #     uvicorn.run(app,
